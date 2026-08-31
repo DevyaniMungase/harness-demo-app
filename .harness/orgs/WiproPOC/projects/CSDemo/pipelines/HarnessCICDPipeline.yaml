@@ -1,0 +1,53 @@
+pipeline:
+  name: Harness-CICD-Pipeline
+  identifier: HarnessCICDPipeline
+  projectIdentifier: CSDemo
+  orgIdentifier: WiproPOC
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: GithubDevyani1
+        repoName: Harness-demo-app
+        build: <+input>
+  stages:
+    - stage:
+        name: CI-Build
+        identifier: CIBuild
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: false
+          infrastructure:
+            type: VM
+            spec:
+              type: Pool
+              spec:
+                poolName: main
+                harnessImageConnectorRef: demodocker
+                os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test Application
+                  identifier: Test_Application
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "Starting application test"
+                      ls -la
+                      echo "Application test completed successfully"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: demodocker
+                    repo: Harness-CICD-Docker-Repository
+                    tags:
+                      - input
+                    caching: true
